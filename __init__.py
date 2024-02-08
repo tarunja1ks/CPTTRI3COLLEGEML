@@ -1,29 +1,28 @@
-from flask import Flask
-from flask_cors import CORS
-from flask_sqlalchemy import SQLAlchemy
-from flask_migrate import Migrate
-import os
 
 """
-These object can be used throughout project.
-1.) Objects from this file can be included in many blueprints
-2.) Isolating these object definitions avoids duplication and circular dependencies
+These imports define the key objects
+"""
+
+import logging
+
+from flask import Flask
+from flask_sqlalchemy import SQLAlchemy
+
+"""
+These object and definitions are used throughout the Jupyter Notebook.
 """
 
 # Setup of key Flask object (app)
 app = Flask(__name__)
-cors = CORS(app, supports_credentials=True)
-
 # Setup SQLAlchemy object and properties for the database (db)
-dbURI = 'sqlite:///volumes/sqlite.db'
+database = 'sqlite:///sqlite.db'  # path and filename of database
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
-app.config['SQLALCHEMY_DATABASE_URI'] = dbURI
-SECRET_KEY = os.environ.get('SECRET_KEY') or 'SECRET_KEY'
-app.config['SECRET_KEY'] = SECRET_KEY
+app.config['SQLALCHEMY_DATABASE_URI'] = database
+app.config['SECRET_KEY'] = 'SECRET_KEY'
+app.logger.setLevel(logging.INFO)
+app.logger.addHandler(logging.StreamHandler())  # Logs to console
 db = SQLAlchemy()
-Migrate(app, db)
 
-# Images storage
-app.config['MAX_CONTENT_LENGTH'] = 5 * 1024 * 1024  # maximum size of uploaded content
-app.config['UPLOAD_EXTENSIONS'] = ['.jpg', '.png', '.gif']  # supported file types
-app.config['UPLOAD_FOLDER'] = 'volumes/uploads/'  # location of user uploaded content
+
+# This belongs in place where it runs once per project
+db.init_app(app)

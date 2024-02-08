@@ -1,68 +1,14 @@
-""" database dependencies to support sqliteDB examples """
-from random import randrange
-from datetime import date
-import os, base64
+""" database dependencies to support sqlite examples """
+import datetime
+from datetime import datetime
 import json
 
-from __init__ import app, db
 from sqlalchemy.exc import IntegrityError
 from werkzeug.security import generate_password_hash, check_password_hash
+from __init__ import db
 
 
-''' Tutorial: https://www.sqlalchemy.org/library.html#tutorials, try to get into Python shell and follow along '''
-
-# Define the Post class to manage actions in 'posts' table,  with a relationship to 'users' table
-class Post(db.Model):
-    __tablename__ = 'posts'
-
-    # Define the Notes schema
-    id = db.Column(db.Integer, primary_key=True)
-    note = db.Column(db.Text, unique=False, nullable=False)
-    image = db.Column(db.String, unique=False)
-    # Define a relationship in Notes Schema to userID who originates the note, many-to-one (many notes to one user)
-    userID = db.Column(db.Integer, db.ForeignKey('users.id'))
-
-    # Constructor of a Notes object, initializes of instance variables within object
-    def __init__(self, id, note, image):
-        self.userID = id
-        self.note = note
-        self.image = image
-
-    # Returns a string representation of the Notes object, similar to java toString()
-    # returns string
-    def __repr__(self):
-        return "Notes(" + str(self.id) + "," + self.note + "," + str(self.userID) + ")"
-
-    # CRUD create, adds a new record to the Notes table
-    # returns the object added or None in case of an error
-    def create(self):
-        try:
-            # creates a Notes object from Notes(db.Model) class, passes initializers
-            db.session.add(self)  # add prepares to persist person object to Notes table
-            db.session.commit()  # SqlAlchemy "unit of work pattern" requires a manual commit
-            return self
-        except IntegrityError:
-            db.session.remove()
-            return None
-
-    # CRUD read, returns dictionary representation of Notes object
-    # returns dictionary
-    def read(self):
-        # encode image
-        path = app.config['UPLOAD_FOLDER']
-        file = os.path.join(path, self.image)
-        file_text = open(file, 'rb')
-        file_read = file_text.read()
-        file_encode = base64.encodebytes(file_read)
-        
-        return {
-            "id": self.id,
-            "userID": self.userID,
-            "note": self.note,
-            "image": self.image,
-            "base64": str(file_encode)
-        }
-
+''' Tutorial: https://www.sqlalchemy.org/library.html#tutorials, try to get into a Python shell and follow along '''
 
 # Define the User class to manage actions in the 'users' table
 # -- Object Relational Mapping (ORM) is the key concept of SQLAlchemy
@@ -78,37 +24,63 @@ class User(db.Model):
     _uid = db.Column(db.String(255), unique=True, nullable=False)
     _password = db.Column(db.String(255), unique=False, nullable=False)
     _dob = db.Column(db.Date)
-    _hashmap = db.Column(db.JSON, unique=False, nullable=True)
-    _role = db.Column(db.String(20), default="User", nullable=False)
-
-    # Defines a relationship between User record and Notes table, one-to-many (one user to many notes)
-    posts = db.relationship("Post", cascade='all, delete', backref='users', lazy=True)
+    _email = db.Column(db.String(255), unique=False, nullable=False)
 
     # constructor of a User object, initializes the instance variables within object (self)
-    def __init__(self, name, uid, password="123qwerty", dob=date.today(), hashmap={}, role="User"):
+    def __init__(self, name, uid, email, password="123qwerty", dob=datetime.today(), ):
         self._name = name    # variables with self prefix become part of the object, 
         self._uid = uid
         self.set_password(password)
+        if isinstance(dob, str):  # not a date type     
+            dob = date=datetime.today()
         self._dob = dob
-        self._hashmap = hashmap
-        self._role = role
+        self._email = email
 
     # a name getter method, extracts name from object
     @property
     def name(self):
         return self._name
     
+    # intializing user data 
+    @classmethod
+    def initUsers(cls):
+        """Initialize sample users."""
+        try:
+            # Check if any users exist
+            existing_users = cls.query.all()
+            if not existing_users:
+                # Only add sample users if no users exist
+                u1 = cls(name='Thomas Edison', uid='toby', email="123@123.com", password='123toby', dob=datetime(1847, 2, 11))
+                u2 = cls(name='Nikola Tesla', uid='niko', email="123@123.com", password='123niko')
+                u3 = cls(name='Alexander Graham Bell', uid='lex', email="123@123.com", password='123lex')
+                u4 = cls(name='Eli Whitney', uid='whit', email="123@123.com", password='123whit')
+                u5 = cls(name='Indiana Jones', uid='indi', email="123@123.com", dob=datetime(1920, 10, 21))
+                u6 = cls(name='Marion Ravenwood', uid='raven', email="123@123.com", dob=datetime(1921, 10, 21))
+
+                users = [u1, u2, u3, u4, u5, u6]
+
+                # Add each user to the database
+                for user in users:
+                    db.session.add(user)
+
+                # Commit changes to the database
+                db.session.commit()
+
+        except IntegrityError:
+            # Handle IntegrityError if there is an issue
+            db.session.remove()
+    
     # a setter function, allows name to be updated after initial object creation
     @name.setter
     def name(self, name):
         self._name = name
     
-    # a getter method, extracts email from object
+    # a getter method, extracts uid from object
     @property
     def uid(self):
         return self._uid
     
-    # a setter function, allows name to be updated after initial object creation
+    # a setter function, allows uid to be updated after initial object creation
     @uid.setter
     def uid(self, uid):
         self._uid = uid
@@ -121,57 +93,51 @@ class User(db.Model):
     def password(self):
         return self._password[0:10] + "..." # because of security only show 1st characters
 
-    # update password, this is conventional setter
+    # update password, this is conventional method used for setter
     def set_password(self, password):
         """Create a hashed password."""
-        self._password = generate_password_hash(password, "pbkdf2:sha256", salt_length=10)
+        self._password = generate_password_hash(password, method='sha256')
 
-    # check password parameter versus stored/encrypted password
+    # check password parameter against stored/encrypted password
     def is_password(self, password):
         """Check against hashed password."""
         result = check_password_hash(self._password, password)
         return result
     
-    # dob property is returned as string, to avoid unfriendly outcomes
+    # dob property is returned as string, a string represents date outside object
     @property
     def dob(self):
         dob_string = self._dob.strftime('%m-%d-%Y')
         return dob_string
     
-    # dob should be have verification for type date
+    # dob setter, verifies date type before it is set or default to today
     @dob.setter
     def dob(self, dob):
+        if isinstance(dob, str):  # not a date type     
+            dob = date=datetime.today()
         self._dob = dob
+        
+        
+    # a email getter method, extracts email from object
+    @property
+    def email(self):
+        return self._email
     
+    # a setter function, allows email to be updated after initial object creation
+    @email.setter
+    def email(self, email):
+        self._email = email
+    
+    # age is calculated field, age is returned according to date of birth
     @property
     def age(self):
-        today = date.today()
+        today = datetime.today()
         return today.year - self._dob.year - ((today.month, today.day) < (self._dob.month, self._dob.day))
     
-    # output content using str(object) in human readable form, uses getter
+    # output content using str(object) is in human readable form
     # output content using json dumps, this is ready for API response
     def __str__(self):
         return json.dumps(self.read())
-   
-    # hashmap is used to store python dictionary data 
-    @property
-    def hashmap(self):
-        return self._hashmap
-    
-    @hashmap.setter
-    def hashmap(self, hashmap):
-        self._hashmap = hashmap
-        
-    @property
-    def role(self):
-        return self._role
-
-    @role.setter
-    def role(self, role):
-        self._role = role
-
-    def is_admin(self):
-        return self._role == "Admin"
 
     # CRUD create/add a new record to the table
     # returns self or None on error
@@ -194,13 +160,12 @@ class User(db.Model):
             "uid": self.uid,
             "dob": self.dob,
             "age": self.age,
-            "hashmap": self._hashmap,
-            # "posts": [post.read() for post in self.posts]
+            "email": self.email
         }
 
     # CRUD update: updates user name, password, phone
     # returns self
-    def update(self, name="", uid="", password=""):
+    def update(self, name="", uid="", password="",email=""):
         """only updates values with length"""
         if len(name) > 0:
             self.name = name
@@ -208,6 +173,9 @@ class User(db.Model):
             self.uid = uid
         if len(password) > 0:
             self.set_password(password)
+        if len(email) > 0:
+            self.email = email
+        db.session.add(self) # performs update when id exists
         db.session.commit()
         return self
 
@@ -217,34 +185,3 @@ class User(db.Model):
         db.session.delete(self)
         db.session.commit()
         return None
-
-
-"""Database Creation and Testing """
-
-
-# Builds working data for testing
-def initUsers():
-    with app.app_context():
-        """Create database and tables"""
-        db.create_all()
-        """Tester data for table"""
-        u1 = User(name='Thomas Edison', uid='toby', password='123toby', dob=date(1847, 2, 11), hashmap={"job": "inventor", "company": "GE"}, role="Admin")
-        u2 = User(name='Nicholas Tesla', uid='niko', password='123niko', dob=date(1856, 7, 10), hashmap={"job": "inventor", "company": "Tesla"})
-        u3 = User(name='Alexander Graham Bell', uid='lex', hashmap={"job": "inventor", "company": "ATT"})
-        u4 = User(name='Grace Hopper', uid='hop', password='123hop', dob=date(1906, 12, 9), hashmap={"job": "inventor", "company": "Navy"})
-        users = [u1, u2, u3, u4]
-
-        """Builds sample user/note(s) data"""
-        for user in users:
-            try:
-                '''add a few 1 to 4 notes per user'''
-                for num in range(randrange(1, 4)):
-                    note = "#### " + user.name + " note " + str(num) + ". \n Generated by test data."
-                    user.posts.append(Post(id=user.id, note=note, image='ncs_logo.png'))
-                '''add user/post data to table'''
-                user.create()
-            except IntegrityError:
-                '''fails with bad or duplicate data'''
-                db.session.remove()
-                print(f"Records exist, duplicate email, or error: {user.uid}")
-            

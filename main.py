@@ -1,70 +1,140 @@
-import threading
+from datetime import datetime
+from flask import request
+from flask_cors import CORS
+from __init__ import app, db
 
-# import "packages" from flask
-from flask import render_template,request  # import render_template from "public" flask libraries
-from flask.cli import AppGroup
+from api.user import user_api
+from model.users import User
 
+# Create CORS instance before registering blueprint
+cors = CORS(app, supports_credentials=True)
 
-# import "packages" from "this" project
-from __init__ import app, db, cors  # Definitions initialization
+# Register blueprint
+app.register_blueprint(user_api)
 
-
-# setup APIs
-from api.covid import covid_api # Blueprint import api definition
-from api.joke import joke_api # Blueprint import api definition
-from api.user import user_api # Blueprint import api definition
-from api.player import player_api
-# database migrations
-from model.users import initUsers
-from model.players import initPlayers
-
-# setup App pages
-from projects.projects import app_projects # Blueprint directory import projects definition
-
-
-# Initialize the SQLAlchemy object to work with the Flask app instance
-db.init_app(app)
-
-# register URIs
-app.register_blueprint(joke_api) # register api routes
-app.register_blueprint(covid_api) # register api routes
-app.register_blueprint(user_api) # register api routes
-app.register_blueprint(player_api)
-app.register_blueprint(app_projects) # register app pages
-
-@app.errorhandler(404)  # catch for URL not found
-def page_not_found(e):
-    # note that we set the 404 status explicitly
-    return render_template('404.html'), 404
-
-@app.route('/')  # connects default URL to index() function
-def index():
-    return render_template("index.html")
-
-@app.route('/table/')  # connects /stub/ URL to stub() function
-def table():
-    return render_template("table.html")
+# Flag to ensure initialization only happens once
+# initialized = False
 
 @app.before_request
 def before_request():
-    # Check if the request came from a specific origin
     allowed_origin = request.headers.get('Origin')
-    if allowed_origin in ['http://localhost:4100', 'http://127.0.0.1:4100', 'https://nighthawkcoders.github.io']:
+    if allowed_origin in ['http://localhost:4200', 'http://127.0.0.1:4200', 'https://nighthawkcoders.github.io']:
         cors._origins = allowed_origin
-
-# Create an AppGroup for custom commands
-custom_cli = AppGroup('custom', help='Custom commands')
-
-# Define a command to generate data
-@custom_cli.command('generate_data')
-def generate_data():
-    initUsers()
-    initPlayers()
-
-# Register the custom command group with the Flask application
-app.cli.add_command(custom_cli)
         
-# this runs the application on the development server
+        
+# Builds working data for testing
+def initUsers():
+    with app.app_context():
+        """Create database and tables"""
+        db.create_all()
+        """Tester data for table"""
+        u1 = User(name='Thomas Edison', uid='toby', email="123@123.com", password='123toby', dob=datetime(1847, 2, 11))
+        u2 = User(name='Nikola Tesla', uid='niko', email="123@123.com", password='123niko')
+        u3 = User(name='Alexander Graham Bell', uid='lex', email="123@123.com", password='123lex')
+        u4 = User(name='Eli Whitney', uid='whit', email="123@123.com", password='123whit')
+        u5 = User(name='Indiana Jones', uid='indi', email="123@123.com", dob=datetime(1920, 10, 21))
+        u6 = User(name='Marion Ravenwood', uid='raven', email="123@123.com", dob=datetime(1921, 10, 21))
+
+
+        users = [u1, u2, u3, u4, u5, u6]
+
+        """Builds sample user/note(s) data"""
+        for user in users:
+            try:
+                '''add user to table'''
+                object = user.create()
+                print(f"Created new uid {object.uid}")
+            except:  # error raised if object nit created
+                '''fails with bad or duplicate data'''
+                print(f"Records exist uid {user.uid}, or error.")
+
+
+# SQLAlchemy extracts single user from database matching User ID
+def find_by_uid(uid):
+    with app.app_context():
+        user = User.query.filter_by(_uid=uid).first()
+    return user # returns user object
+
+# Check credentials by finding user and verify password
+def check_credentials(uid, password):
+    # query email and return user record
+    user = find_by_uid(uid)
+    if user == None:
+        return False
+    if (user.is_password(password)):
+        return True
+    return False
+
+# Inputs, Try/Except, and SQLAlchemy work together to build a valid database object
+def create():
+    # optimize user time to see if uid exists
+    uid = input("Enter your user id:")
+    user = find_by_uid(uid)
+    try:
+        print("Found\n", user.read())
+        return
+    except:
+        pass # keep going
+    
+    # request value that ensure creating valid object
+    name = input("Enter your name:")
+    password = input("Enter your password")
+    email = input("Enter your email:")
+    
+    # Initialize User object before date
+    user = User(name=name, 
+                uid=uid, 
+                password=password,
+                email=email)
+    
+    # create user.dob, fail with today as dob
+    dob = input("Enter your date of birth 'YYYY-MM-DD'")
+    try:
+        user.dob = datetime.strptime(dob, '%Y-%m-%d').date()
+    except ValueError:
+        user.dob = datetime.today()
+        print(f"Invalid date {dob} require YYYY-mm-dd, date defaulted to {user.dob}")
+           
+    # write object to database
+    with app.app_context():
+        try:
+            object = user.create()
+            print("Created\n", object.read())
+        except:  # error raised if object not created
+            print("Unknown error uid {uid}")
+            
+            
+# SQLAlchemy extracts all users from database, turns each user into JSON
+def read():
+    with app.app_context():
+        table = User.query.all()
+    json_ready = [user.read() for user in table] # "List Comprehensions", for each user add user.read() to list
+    return json_ready
+
+# read()
+        
+# create()                
+initUsers()
+
+# resp.set_cookie(
+#     "jwt",
+#     token,
+#     max_age=3600,
+#     secure=True,
+#     httponly=True,
+#     path='/',
+#     samesite='None'
+# )
+
+# if ($request_method = OPTIONS) {
+#     add_header "Access-Control-Allow-Credentials" "true" always;
+#     add_header "Access-Control-Allow-Origin"  "https://nighthawkcoders.github.io" always;
+#     add_header "Access-Control-Allow-Methods" "GET, POST, PUT, OPTIONS, HEAD" always;
+#     add_header "Access-Control-Allow-MaxAge" 600 always;
+#     add_header "Access-Control-Allow-Headers" "Authorization, Origin, X-Requested-With, Content-Type, Accept" always;
+#     return 204;
+# }
+
 if __name__ == "__main__":
-    # change name for testing
+    app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///./volumes/sqlite.db"
     app.run(debug=True, host="0.0.0.0", port="8086")
