@@ -63,7 +63,14 @@ class UserAPI:
                 if user.uid == uid:
                     user.delete()
             return jsonify(user.read())
-
+        
+        def get_colleges(): #GET COLLEGE LIST FOR INDIVIDUAL
+            body = request.get_json()
+            list = body.get('college_list')
+            
+        #DISPLAY FULL COLLEGE LIST
+        
+        #SEARCH & UPDATE USER LIST
     class _Security(Resource):
         def post(self):
             try:
