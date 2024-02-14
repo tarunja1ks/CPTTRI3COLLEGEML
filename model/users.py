@@ -139,7 +139,7 @@ class User(db.Model):
         return self._college_list
     
     @college_list.setter
-    def email(self, college_list):
+    def college_list(self, college_list):
         self._college_list = college_list
     
     # age is calculated field, age is returned according to date of birth
@@ -191,12 +191,6 @@ class User(db.Model):
         if len(email) > 0:
             self.email = email
         db.session.add(self) # performs update when id exists
-        db.session.commit()
-        return self
-    
-    def update_list(self, colleges=[]):
-        self.college_list = colleges
-        db.session.add(self)
         db.session.commit()
         return self
 

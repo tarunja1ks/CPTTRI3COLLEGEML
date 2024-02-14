@@ -64,15 +64,26 @@ class UserAPI:
                     user.delete()
             return jsonify(user.read())
         
-        def get_colleges(): #GET COLLEGE LIST FOR INDIVIDUAL
+        def get_user_colleges(self):
             body = request.get_json()
+            colleges = College.query.all()
             list = body.get('college_list')
-            #paste data columns for all colleges entries recovered
+            user_colleges = []
+            for college in colleges:
+                if college.name() in list:
+                    user_colleges.append(college.read())
+            return jsonify(user_colleges)
             
-        #SEARCH & UPDATE USER LIST
-            #Search bar for charstring
-            #Return all columns matching
-            #Button for each to add to list
+        def get_colleges(self):
+            colleges = College.query.all()
+            json_ready = [college.read() for college in colleges]
+            return jsonify(json_ready)
+        
+        def ulist_update(self, uid, ulist):
+            user = User.query.get(uid)
+            user.college_list = ulist
+            user.update()
+            return jsonify(user.read())
             
     class _Security(Resource):
         def post(self):
