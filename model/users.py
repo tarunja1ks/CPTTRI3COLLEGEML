@@ -33,7 +33,7 @@ class User(db.Model):
     '''
 
     # constructor of a User object, initializes the instance variables within object (self)
-    def __init__(self, name, uid, email, password="123qwerty", dob=datetime.today()): #, college_list=[]):
+    def __init__(self, name, uid, email, password="123qwerty", dob=datetime.today()): #, college_list=[]): -- UPDATE
         self._name = name
         self._uid = uid
         self.set_password(password)
@@ -41,7 +41,7 @@ class User(db.Model):
             dob = date=datetime.today()
         self._dob = dob
         self._email = email
-        #self._college_list = college_list
+        #self._college_list = college_list -- UPDATE
 
     # a name getter method, extracts name from object
     @property
@@ -140,7 +140,7 @@ class User(db.Model):
     
     @college_list.setter
     def email(self, college_list):
-        self._college_list = college_list'''
+        self._college_list = college_list''' # -- UPDATE
     
     # age is calculated field, age is returned according to date of birth
     @property
@@ -175,7 +175,7 @@ class User(db.Model):
             "dob": self.dob,
             "age": self.age,
             "email": self.email
-            #"colleges": self.college_list
+            #"colleges": self.college_list -- UPDATE
         }
 
     # CRUD update: updates user name, password, phone
@@ -198,7 +198,7 @@ class User(db.Model):
         self.college_list = colleges
         db.session.add(self)
         db.session.commit()
-        return self'''
+        return self''' # -- UPDATE
 
     # CRUD delete: remove self
     # None
