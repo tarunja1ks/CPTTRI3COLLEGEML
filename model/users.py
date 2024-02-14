@@ -27,7 +27,10 @@ class User(db.Model):
     _password = db.Column(db.String(255), unique=False, nullable=False)
     _dob = db.Column(db.Date)
     _email = db.Column(db.String(255), unique=False, nullable=False)
+    
+    '''
     _college_list = db.Column(MutableList.as_mutable(PickleType),default=[]) #UNTESTED - NEED TO USE LIST OBJECT
+    '''
 
     # constructor of a User object, initializes the instance variables within object (self)
     def __init__(self, name, uid, email, password="123qwerty", dob=datetime.today(), ):
