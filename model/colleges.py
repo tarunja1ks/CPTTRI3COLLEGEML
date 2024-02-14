@@ -24,17 +24,15 @@ class College(db.Model):
     __tablename__ = 'colleges'  # table name is plural, class name is singular
 
     # Define the Player schema with "vars" from object
-    _name = db.Column(db.String(255), unique=False, nullable=False)
+    _name = db.Column(db.String(255), unique=True, nullable=False)
     _link = db.Column(db.String(255), unique=True, nullable=False)
-    _type = db.Column(db.String(255), unique=False, nullable=False)
-    _tokens = db.Column(db.Integer)    
+    _type = db.Column(db.String(255), unique=False, nullable=True)
 
     # constructor of a Player object, initializes the instance variables within object (self)
-    def __init__(self, name, link, type, tokens):
+    def __init__(self, name, link, type):
         self._name = name    # variables with self prefix become part of the object, 
         self._link = link
         self.type = type
-        self._tokens = tokens
 
     # a name getter method, extracts name from object
     @property
@@ -46,10 +44,21 @@ class College(db.Model):
     def name(self, name):
         self._name = name
     
-    # a getter method, extracts email from object
     @property
-    def uid(self):
-        return self._uid
+    def link(self):
+        return self._link
+    
+    @name.setter
+    def name(self, link):
+        self._link = link
+        
+    @property
+    def type(self):
+        return self._type
+    
+    @name.setter
+    def name(self, type):
+        self._type = type
     
     # output content using str(object) in human readable form, uses getter
     # output content using json dumps, this is ready for API response
@@ -72,11 +81,9 @@ class College(db.Model):
     # returns dictionary
     def read(self):
         return {
-            "id": self.id,
             "name": self.name,
-            "uid": self.uid,
-            "tokens": self.tokens,
-            "password": self._password
+            "link": self.link,
+            "type": self.type
         }
 
     # CRUD update: updates name, uid, password, tokens
@@ -86,22 +93,20 @@ class College(db.Model):
         for key in dictionary:
             if key == "name":
                 self.name = dictionary[key]
-            if key == "uid":
-                self.uid = dictionary[key]
-            if key == "password":
-                self.set_password(dictionary[key])
-            if key == "tokens":
-                self.tokens = dictionary[key]
+            if key == "link":
+                self.link = dictionary[key]
+            if key == "type":
+                self.type = dictionary[key]
         db.session.commit()
         return self
 
     # CRUD delete: remove self
     # return self
     def delete(self):
-        player = self
+        colleges = self
         db.session.delete(self)
         db.session.commit()
-        return player
+        return colleges
 
 
 """Database Creation and Testing """
@@ -111,14 +116,14 @@ class College(db.Model):
 def initPlayers():
     with app.app_context():
         db.create_all()
-        players = [
-            Player() #FILL OUT THIS WHEN POSSIBLE
+        colleges = [
+            College() #FILL OUT THIS WHEN POSSIBLE
         ]
 
         """Builds sample user/note(s) data"""
-        for player in players:
+        for college in colleges:
             try:
-                player.create()
+                college.create()
             except IntegrityError:
                 db.session.remove()
-                print(f"Records exist, duplicate email, or error: {player.uid}")
+                print(f"Records exist, duplicate email, or error: {college.name}")
