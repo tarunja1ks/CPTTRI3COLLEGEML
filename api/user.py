@@ -67,10 +67,13 @@ class UserAPI:
         def get_colleges(): #GET COLLEGE LIST FOR INDIVIDUAL
             body = request.get_json()
             list = body.get('college_list')
+            #paste data columns for all colleges entries recovered
             
-        #DISPLAY FULL COLLEGE LIST
-        
         #SEARCH & UPDATE USER LIST
+            #Search bar for charstring
+            #Return all columns matching
+            #Button for each to add to list
+            
     class _Security(Resource):
         def post(self):
             try:
