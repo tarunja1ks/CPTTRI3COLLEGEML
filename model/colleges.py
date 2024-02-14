@@ -116,9 +116,13 @@ class College(db.Model):
 def initPlayers():
     with app.app_context():
         db.create_all()
-        colleges = [
-            College() #FILL OUT THIS WHEN POSSIBLE
-        ]
+        c1 = College(name='Harvard',link='harvard.edu',type='Private Out-State')
+        c2 = College(name='Stanford',link='sf.org',type='Private In-State')
+        c3 = College(name='UCLA',link='25.com',type='UC')
+        c4 = College(name='Palomar',link='e.com',type='Community')
+        #Add new data to this line
+        
+        colleges = [c1, c2, c3, c4]
 
         """Builds sample user/note(s) data"""
         for college in colleges:
