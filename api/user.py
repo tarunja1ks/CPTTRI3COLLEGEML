@@ -2,6 +2,7 @@ import jwt
 import logging
 
 from model.users import User
+from model.colleges import College
 from flask import Blueprint, request, jsonify, current_app, Response
 from flask_restful import Api, Resource
 from datetime import datetime
