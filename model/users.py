@@ -28,12 +28,12 @@ class User(db.Model):
     _dob = db.Column(db.Date)
     _email = db.Column(db.String(255), unique=False, nullable=False)
     
-    '''
+
     _college_list = db.Column(MutableList.as_mutable(PickleType),default=[]) #UNTESTED - NEED TO USE LIST OBJECT
-    '''
+
 
     # constructor of a User object, initializes the instance variables within object (self)
-    def __init__(self, name, uid, email, password="123qwerty", dob=datetime.today()): #, college_list=[]): -- UPDATE
+    def __init__(self, name, uid, email, password="123qwerty", dob=datetime.today(), college_list=[]):
         self._name = name
         self._uid = uid
         self.set_password(password)
@@ -41,7 +41,7 @@ class User(db.Model):
             dob = date=datetime.today()
         self._dob = dob
         self._email = email
-        #self._college_list = college_list -- UPDATE
+        self._college_list = college_list
 
     # a name getter method, extracts name from object
     @property
@@ -134,13 +134,13 @@ class User(db.Model):
     def email(self, email):
         self._email = email
         
-    '''@property
+    @property
     def college_list(self):
         return self._college_list
     
     @college_list.setter
     def email(self, college_list):
-        self._college_list = college_list''' # -- UPDATE
+        self._college_list = college_list
     
     # age is calculated field, age is returned according to date of birth
     @property
@@ -174,8 +174,8 @@ class User(db.Model):
             "uid": self.uid,
             "dob": self.dob,
             "age": self.age,
-            "email": self.email
-            #"colleges": self.college_list -- UPDATE
+            "email": self.email,
+            "colleges": self.college_list
         }
 
     # CRUD update: updates user name, password, phone
@@ -194,11 +194,11 @@ class User(db.Model):
         db.session.commit()
         return self
     
-    '''def update_list(self, colleges=[]):
+    def update_list(self, colleges=[]):
         self.college_list = colleges
         db.session.add(self)
         db.session.commit()
-        return self''' # -- UPDATE
+        return self
 
     # CRUD delete: remove self
     # None
