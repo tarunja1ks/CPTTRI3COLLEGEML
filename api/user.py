@@ -64,6 +64,7 @@ class UserAPI:
                     user.delete()
             return jsonify(user.read())
         
+        @app.route('/api/users/get_user_colleges', methods=['GET'])
         def get_user_colleges(self):
             body = request.get_json()
             colleges = College.query.all()
@@ -73,12 +74,14 @@ class UserAPI:
                 if college.name() in list:
                     user_colleges.append(college.read())
             return jsonify(user_colleges)
-            
+        
+        @app.route('/api/users/get_table', methods=['GET'])    
         def get_colleges(self):
             colleges = College.query.all()
             json_ready = [college.read() for college in colleges]
             return jsonify(json_ready)
         
+        @app.route('/api/users/ulist_update', methods=['POST'])
         def ulist_update(self, uid, ulist):
             ulist = ulist.split()
             user = User.query.get(uid)
