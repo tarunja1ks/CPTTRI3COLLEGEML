@@ -82,7 +82,7 @@ class UserAPI:
         def ulist_update(self, uid, ulist):
             ulist = ulist.split()
             user = User.query.get(uid)
-            user.college_list = ulist
+            user.college_list = user.college_list + ulist
             user.update()
             return jsonify(user.read())
             
