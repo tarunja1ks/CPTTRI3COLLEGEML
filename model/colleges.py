@@ -26,13 +26,13 @@ class College(db.Model):
     # Define the Player schema with "vars" from object
     _name = db.Column(db.String(255), unique=True, nullable=False)
     _link = db.Column(db.String(255), unique=True, nullable=False)
-    _type = db.Column(db.String(255), unique=False, nullable=True)
+    _img = db.Column(db.String(255), unique=False, nullable=True)
 
     # constructor of a Player object, initializes the instance variables within object (self)
-    def __init__(self, name, link, type):
+    def __init__(self, name, link, img):
         self._name = name    # variables with self prefix become part of the object, 
         self._link = link
-        self.type = type
+        self.img = img
 
     # a name getter method, extracts name from object
     @property
@@ -53,12 +53,12 @@ class College(db.Model):
         self._link = link
         
     @property
-    def type(self):
-        return self._type
+    def image(self):
+        return self._img
     
     @name.setter
-    def name(self, type):
-        self._type = type
+    def name(self, img):
+        self._img = img
     
     # output content using str(object) in human readable form, uses getter
     # output content using json dumps, this is ready for API response
@@ -83,7 +83,7 @@ class College(db.Model):
         return {
             "name": self.name,
             "link": self.link,
-            "type": self.type
+            "image": self.img
         }
 
     # CRUD update: updates name, uid, password, tokens
@@ -95,8 +95,8 @@ class College(db.Model):
                 self.name = dictionary[key]
             if key == "link":
                 self.link = dictionary[key]
-            if key == "type":
-                self.type = dictionary[key]
+            if key == "image":
+                self.img = dictionary[key]
         db.session.commit()
         return self
 
@@ -116,13 +116,20 @@ class College(db.Model):
 def initPlayers():
     with app.app_context():
         db.create_all()
-        c1 = College(name='Harvard',link='harvard.edu',type='Private Out-State')
-        c2 = College(name='Stanford',link='sf.org',type='Private In-State')
-        c3 = College(name='UCLA',link='25.com',type='UC')
-        c4 = College(name='Palomar',link='e.com',type='Community')
+        c1 = College(name='Stanford University',link='https://admission.stanford.edu/apply/',img='https://identity.stanford.edu/wp-content/uploads/sites/3/2020/07/block-s-right.png', )
+        c2 = College(name='Harvard University',link='https://college.harvard.edu/admissions/apply',img='https://1000logos.net/wp-content/uploads/2017/02/Harvard-Logo.png')
+        c3 = College(name='MIT',link='https://apply.mitadmissions.org/portal/apply',img='https://upload.wikimedia.org/wikipedia/commons/thumb/0/0c/MIT_logo.svg/2560px-MIT_logo.svg.png')
+        c4 = College(name='Georgia Tech',link='https://admission.gatech.edu/apply/',img='https://brand.gatech.edu/sites/default/files/inline-images/GTVertical_RGB.png')
+        c5 = College(name='Duke University',link='https://admissions.duke.edu/apply/',img='https://upload.wikimedia.org/wikipedia/commons/thumb/0/04/Duke_Blue_Devils_logo.svg/909px-Duke_Blue_Devils_logo.svg.png')
+        c6 = College(name='Yale University',link='https://www.yale.edu/admissions',img='https://upload.wikimedia.org/wikipedia/commons/thumb/6/6e/Yale_University_logo.svg/2560px-Yale_University_logo.svg.png')
+        c7 = College(name='Princeton University',link='https://admission.princeton.edu/apply',img='https://upload.wikimedia.org/wikipedia/commons/thumb/d/d0/Princeton_seal.svg/1200px-Princeton_seal.svg.png')
+        c8 = College(name='Columbia University',link='https://undergrad.admissions.columbia.edu/apply',img='https://admissions.ucr.edu/sites/default/files/styles/form_preview/public/2020-07/ucr-education-logo-columbia-university.png?itok=-0FD6Ma2')
+        c9 = College(name='University of Chicago',link='https://collegeadmissions.uchicago.edu/apply',img='https://upload.wikimedia.org/wikipedia/commons/c/cd/University_of_Chicago_Coat_of_arms.png')
+        c10 = College(name='UC Berkeley',link='https://admissions.berkeley.edu/apply-to-berkeley/',img='https://upload.wikimedia.org/wikipedia/commons/thumb/a/a1/Seal_of_University_of_California%2C_Berkeley.svg/1200px-Seal_of_University_of_California%2C_Berkeley.svg.png')
+        c11 = College(name='UCLA',link='https://admission.ucla.edu/apply',img='https://upload.wikimedia.org/wikipedia/commons/thumb/d/d1/UCLA_Bruins_primary_logo.svg/1200px-UCLA_Bruins_primary_logo.svg.png')
         #Add new data to this line
         
-        colleges = [c1, c2, c3, c4]
+        colleges = [c1, c2, c3, c4, c5, c6, c7, c8, c9, c10, c11]
 
         """Builds sample user/note(s) data"""
         for college in colleges:
