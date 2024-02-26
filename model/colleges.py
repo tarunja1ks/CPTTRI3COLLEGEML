@@ -1,23 +1,12 @@
-""" database dependencies to support sqliteDB examples """
-from random import randrange
-from datetime import date
-import os, base64
+import datetime
+from datetime import datetime
 import json
 
-from __init__ import app, db
 from sqlalchemy.exc import IntegrityError
+from sqlalchemy.ext.mutable import MutableList
+from sqlalchemy import PickleType
 from werkzeug.security import generate_password_hash, check_password_hash
-
-
-""" database dependencies to support sqliteDB examples """
-from random import randrange
-from datetime import date
-import os, base64
-import json
-
-from __init__ import app, db
-from sqlalchemy.exc import IntegrityError
-from werkzeug.security import generate_password_hash, check_password_hash
+from __init__ import db
 
 
 class College(db.Model):
@@ -26,13 +15,13 @@ class College(db.Model):
     # Define the Player schema with "vars" from object
     _name = db.Column(db.String(255), unique=True, nullable=False)
     _link = db.Column(db.String(255), unique=True, nullable=False)
-    _img = db.Column(db.String(255), unique=False, nullable=True)
+    _image = db.Column(db.String(255), unique=False, nullable=True)
 
     # constructor of a Player object, initializes the instance variables within object (self)
-    def __init__(self, name, link, img):
+    def __init__(self, name, link, image):
         self._name = name    # variables with self prefix become part of the object, 
         self._link = link
-        self.img = img
+        self.image = image
 
     # a name getter method, extracts name from object
     @property
@@ -48,17 +37,17 @@ class College(db.Model):
     def link(self):
         return self._link
     
-    @name.setter
-    def name(self, link):
+    @link.setter
+    def link(self, link):
         self._link = link
         
     @property
     def image(self):
-        return self._img
+        return self._image
     
-    @name.setter
-    def name(self, img):
-        self._img = img
+    @image.setter
+    def image(self, image):
+        self._image = image
     
     # output content using str(object) in human readable form, uses getter
     # output content using json dumps, this is ready for API response
@@ -83,7 +72,7 @@ class College(db.Model):
         return {
             "name": self.name,
             "link": self.link,
-            "image": self.img
+            "image": self.image
         }
 
     # CRUD update: updates name, uid, password, tokens
@@ -96,7 +85,7 @@ class College(db.Model):
             if key == "link":
                 self.link = dictionary[key]
             if key == "image":
-                self.img = dictionary[key]
+                self.image = dictionary[key]
         db.session.commit()
         return self
 
