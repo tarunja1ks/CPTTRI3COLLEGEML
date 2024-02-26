@@ -4,6 +4,8 @@ from datetime import datetime
 import json
 
 from sqlalchemy.exc import IntegrityError
+from sqlalchemy.ext.mutable import MutableList
+from sqlalchemy import PickleType
 from werkzeug.security import generate_password_hash, check_password_hash
 from __init__ import db
 
@@ -25,16 +27,21 @@ class User(db.Model):
     _password = db.Column(db.String(255), unique=False, nullable=False)
     _dob = db.Column(db.Date)
     _email = db.Column(db.String(255), unique=False, nullable=False)
+    
+
+    _college_list = db.Column(db.String(255), unique=False, nullable=False, default='[]')
+
 
     # constructor of a User object, initializes the instance variables within object (self)
-    def __init__(self, name, uid, email, password="123qwerty", dob=datetime.today(), ):
-        self._name = name    # variables with self prefix become part of the object, 
+    def __init__(self, name, uid, email, password="123qwerty", dob=datetime.today(), college_list=[]):
+        self._name = name
         self._uid = uid
         self.set_password(password)
         if isinstance(dob, str):  # not a date type     
             dob = date=datetime.today()
         self._dob = dob
         self._email = email
+        self._college_list = college_list
 
     # a name getter method, extracts name from object
     @property
@@ -116,8 +123,7 @@ class User(db.Model):
         if isinstance(dob, str):  # not a date type     
             dob = date=datetime.today()
         self._dob = dob
-        
-        
+                
     # a email getter method, extracts email from object
     @property
     def email(self):
@@ -127,6 +133,14 @@ class User(db.Model):
     @email.setter
     def email(self, email):
         self._email = email
+        
+    @property
+    def college_list(self):
+        return self._college_list
+    
+    @college_list.setter
+    def college_list(self, college_list):
+        self._college_list = college_list
     
     # age is calculated field, age is returned according to date of birth
     @property
@@ -160,7 +174,8 @@ class User(db.Model):
             "uid": self.uid,
             "dob": self.dob,
             "age": self.age,
-            "email": self.email
+            "email": self.email,
+            "colleges": self.college_list
         }
 
     # CRUD update: updates user name, password, phone

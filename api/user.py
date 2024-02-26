@@ -2,10 +2,12 @@ import jwt
 import logging
 
 from model.users import User
+from model.colleges import College
 from flask import Blueprint, request, jsonify, current_app, Response
 from flask_restful import Api, Resource
 from datetime import datetime
 from auth_middleware import token_required
+from ast import literal_eval
 
 user_api = Blueprint('user_api', __name__, url_prefix='/api/users')
 api = Api(user_api)
@@ -62,7 +64,36 @@ class UserAPI:
                 if user.uid == uid:
                     user.delete()
             return jsonify(user.read())
-
+    
+    class _Edit(Resource):    
+        #READ STR college_list AS LIST THEN REPORT SELECTIONS AS JSON
+        def post(self):
+            body = request.get_json()
+            colleges = College.query.all()
+            list = literal_eval(body.get('college_list'))
+            user_colleges = []
+            for college in colleges:
+                if college.name() in list:
+                    user_colleges.append(college.read())
+            return jsonify(user_colleges)
+        
+        #REPORT WHOLE COLLEGES DATASET AS JSON
+        def get(self):
+            colleges = College.query.all()
+            json_ready = [college.read() for college in colleges]
+            return jsonify(json_ready)
+        
+        #TAKE STR INPUT AND APPEND TO LIST IF NOT MATCHING
+        def put(self, item):
+            body = request.get_json()
+            uid = body.get('uid')
+            ulist = literal_eval(body.get('college_list'))
+            user = User.query.get(uid)
+            if item not in ulist:
+                user.college_list = str(ulist.append(item))
+            user.update()
+            return jsonify(user.read())
+            
     class _Security(Resource):
         def post(self):
             try:
@@ -106,3 +137,4 @@ class UserAPI:
 
     api.add_resource(_CRUD, '/')
     api.add_resource(_Security, '/authenticate')
+    api.add_resource(_Edit, '/edit')
