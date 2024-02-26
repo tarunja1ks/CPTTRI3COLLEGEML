@@ -64,9 +64,10 @@ class UserAPI:
                 if user.uid == uid:
                     user.delete()
             return jsonify(user.read())
-        
+    
+    class _Edit(Resource):    
         #READ STR college_list AS LIST THEN REPORT SELECTIONS AS JSON
-        def get_user_colleges(self):
+        def get(self):
             body = request.get_json()
             colleges = College.query.all()
             list = literal_eval(body.get('college_list'))
@@ -77,13 +78,13 @@ class UserAPI:
             return jsonify(user_colleges)
         
         #REPORT WHOLE COLLEGES DATASET AS JSON
-        def get_colleges(self):
+        def post(self):
             colleges = College.query.all()
             json_ready = [college.read() for college in colleges]
             return jsonify(json_ready)
         
         #TAKE STR INPUT AND APPEND TO LIST IF NOT MATCHING
-        def ulist_update(self, item):
+        def delete(self, item):
             body = request.get_json()
             uid = body.get('uid')
             ulist = literal_eval(body.get('college_list'))
@@ -136,3 +137,4 @@ class UserAPI:
 
     api.add_resource(_CRUD, '/')
     api.add_resource(_Security, '/authenticate')
+    api.add_resource(_Edit, '/edit')
