@@ -29,7 +29,7 @@ class User(db.Model):
     _email = db.Column(db.String(255), unique=False, nullable=False)
     
 
-    _college_list = db.Column(MutableList.as_mutable(PickleType),default=[]) #UNTESTED - NEED TO USE LIST OBJECT
+    _college_list = db.Column(MutableList.as_mutable(PickleType),default=[])
 
 
     # constructor of a User object, initializes the instance variables within object (self)
