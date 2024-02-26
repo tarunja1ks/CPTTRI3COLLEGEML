@@ -7,6 +7,7 @@ from flask import Blueprint, request, jsonify, current_app, Response
 from flask_restful import Api, Resource
 from datetime import datetime
 from auth_middleware import token_required
+from ast import literal_eval
 
 user_api = Blueprint('user_api', __name__, url_prefix='/api/users')
 api = Api(user_api)
@@ -64,28 +65,31 @@ class UserAPI:
                     user.delete()
             return jsonify(user.read())
         
-        @app.route('/api/users/get_user_colleges', methods=['GET']) #READ STR college_list AS LIST THEN REPORT SELECTIONS AS JSON
+        #READ STR college_list AS LIST THEN REPORT SELECTIONS AS JSON
         def get_user_colleges(self):
             body = request.get_json()
             colleges = College.query.all()
-            list = body.get('college_list')
+            list = literal_eval(body.get('college_list'))
             user_colleges = []
             for college in colleges:
                 if college.name() in list:
                     user_colleges.append(college.read())
             return jsonify(user_colleges)
         
-        @app.route('/api/users/get_table', methods=['GET'])    #REPORT WHOLE COLLEGES DATASET AS JSON
+        #REPORT WHOLE COLLEGES DATASET AS JSON
         def get_colleges(self):
             colleges = College.query.all()
             json_ready = [college.read() for college in colleges]
             return jsonify(json_ready)
         
-        @app.route('/api/users/ulist_update', methods=['POST']) #TAKE STR INPUT AND APPEND TO LIST IF NOT MATCHING
-        def ulist_update(self, uid, ulist):
-            ulist = ulist.split()
+        #TAKE STR INPUT AND APPEND TO LIST IF NOT MATCHING
+        def ulist_update(self, item):
+            body = request.get_json()
+            uid = body.get('uid')
+            ulist = literal_eval(body.get('college_list'))
             user = User.query.get(uid)
-            user.college_list = user.college_list + ulist
+            if item not in ulist:
+                user.college_list = str(ulist.append(item))
             user.update()
             return jsonify(user.read())
             
