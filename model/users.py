@@ -28,11 +28,11 @@ class User(db.Model):
     _dob = db.Column(db.Date)
     _role = db.Column(db.String(20), default="User", nullable=False)
     _email = db.Column(db.String(255), unique=False, nullable=False)
-    _college_list = db.Column(db.String(255), unique=False, nullable=False, default='[]')
+    # _college_list = db.Column(db.String(255), unique=False, nullable=False)
 
 
     # constructor of a User object, initializes the instance variables within object (self)
-    def __init__(self, name, uid, email, password="123qwerty", dob=datetime.today(), role="User", college_list=[]):
+    def __init__(self, name, uid, email, password="123qwerty", dob=datetime.today(), role="User", college_list='[]'):
         self._name = name
         self._uid = uid
         self.set_password(password)
