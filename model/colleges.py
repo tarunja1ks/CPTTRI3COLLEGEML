@@ -1,27 +1,25 @@
-import datetime
-from datetime import datetime
+from random import randrange
+from datetime import date
+import os, base64
 import json
 
+from __init__ import app, db
 from sqlalchemy.exc import IntegrityError
-from sqlalchemy.ext.mutable import MutableList
-from sqlalchemy import PickleType
 from werkzeug.security import generate_password_hash, check_password_hash
-from __init__ import db
 
 
 class College(db.Model):
     __tablename__ = 'colleges'  # table name is plural, class name is singular
 
     # Define the Player schema with "vars" from object
-    _name = db.Column(db.String(255), unique=True, nullable=False)
+    _name = db.Column(db.String(255), unique=True, nullable=False, primary_key=True)
     _link = db.Column(db.String(255), unique=True, nullable=False)
     _image = db.Column(db.String(255), unique=False, nullable=True)
-
-    # constructor of a Player object, initializes the instance variables within object (self)
+    
     def __init__(self, name, link, image):
         self._name = name    # variables with self prefix become part of the object, 
         self._link = link
-        self.image = image
+        self._image = image
 
     # a name getter method, extracts name from object
     @property
