@@ -21,6 +21,7 @@ app.config['SQLALCHEMY_DATABASE_URI'] = dbURI
 SECRET_KEY = os.environ.get('SECRET_KEY') or 'SECRET_KEY'
 app.config['SECRET_KEY'] = SECRET_KEY
 db = SQLAlchemy()
+db.init_app(app)
 Migrate(app, db)
 
 
