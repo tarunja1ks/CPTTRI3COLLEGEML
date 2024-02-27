@@ -55,11 +55,12 @@ class UserAPI:
             json_ready = [user.read() for user in users]
             return jsonify(json_ready)
         
-        @token_required
+        @token_required(roles=["Admin","User"])
         def delete(self, current_user):
             body = request.get_json()
             uid = body.get('uid')
             users = User.query.all()
+            
             for user in users:
                 if user.uid == uid:
                     user.delete()
@@ -99,41 +100,59 @@ class UserAPI:
             try:
                 body = request.get_json()
                 if not body:
-                    return {"message": "Please provide user details", "data": None, "error": "Bad request"}, 400
-
+                    return {
+                        "message": "Please provide user details",
+                        "data": None,
+                        "error": "Bad request"
+                    }, 400
+                ''' Get Data '''
                 uid = body.get('uid')
                 if uid is None:
                     return {'message': f'User ID is missing'}, 400
-
                 password = body.get('password')
-
+                
+                ''' Find user '''
                 user = User.query.filter_by(_uid=uid).first()
                 if user is None or not user.is_password(password):
                     return {'message': f"Invalid user id or password"}, 400
-
                 if user:
                     try:
+                        token_payload = {
+                            "_uid":user._uid,
+                            "role": user.role
+                        }
                         token = jwt.encode(
-                            {"_uid": user._uid},
+                            token_payload,
                             current_app.config["SECRET_KEY"],
                             algorithm="HS256"
                         )
-                        resp = Response(f"Authentication for {user._uid} successful")
+                        resp = Response("Authentication for %s successful" % (user._uid))
                         resp.set_cookie("jwt", token,
                                 max_age=3600,
                                 secure=True,
                                 httponly=True,
                                 path='/',
-                                samesite='None'
+                                samesite='None'  # This is the key part for cross-site requests
+
+                                # domain="frontend.com"
                                 )
                         return resp
                     except Exception as e:
-                        return {"error": "Something went wrong", "message": str(e)}, 500
-
-                return {"message": "Error fetching auth token!", "data": None, "error": "Unauthorized"}, 404
-
+                        return {
+                            "error": "Something went wrong",
+                            "message": str(e)
+                        }, 500
+                return {
+                    "message": "Error fetching auth token!",
+                    "data": None,
+                    "error": "Unauthorized"
+                }, 404
             except Exception as e:
-                return {"message": "Something went wrong!", "error": str(e), "data": None}, 500
+                return {
+                        "message": "Something went wrong!",
+                        "error": str(e),
+                        "data": None
+                }, 500
 
     api.add_resource(_CRUD, '/')
     api.add_resource(_Security, '/authenticate')
