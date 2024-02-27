@@ -1,7 +1,7 @@
 from datetime import datetime
 from flask import request
 from flask_cors import CORS
-from __init__ import app, db
+from __init__ import app, db, cors
 
 from api.user import user_api
 from model.users import User

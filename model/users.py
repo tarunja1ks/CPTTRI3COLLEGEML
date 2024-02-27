@@ -26,14 +26,13 @@ class User(db.Model):
     _uid = db.Column(db.String(255), unique=True, nullable=False)
     _password = db.Column(db.String(255), unique=False, nullable=False)
     _dob = db.Column(db.Date)
+    _role = db.Column(db.String(20), default="User", nullable=False)
     _email = db.Column(db.String(255), unique=False, nullable=False)
-    
-
     _college_list = db.Column(db.String(255), unique=False, nullable=False, default='[]')
 
 
     # constructor of a User object, initializes the instance variables within object (self)
-    def __init__(self, name, uid, email, password="123qwerty", dob=datetime.today(), college_list=[]):
+    def __init__(self, name, uid, email, password="123qwerty", dob=datetime.today(), role="User", college_list=[]):
         self._name = name
         self._uid = uid
         self.set_password(password)
@@ -41,6 +40,7 @@ class User(db.Model):
             dob = date=datetime.today()
         self._dob = dob
         self._email = email
+        self._role = role
         self._college_list = college_list
 
     # a name getter method, extracts name from object
@@ -57,12 +57,12 @@ class User(db.Model):
             existing_users = cls.query.all()
             if not existing_users:
                 # Only add sample users if no users exist
-                u1 = cls(name='Thomas Edison', uid='toby', email="123@123.com", password='123toby', dob=datetime(1847, 2, 11))
-                u2 = cls(name='Nikola Tesla', uid='niko', email="123@123.com", password='123niko')
-                u3 = cls(name='Alexander Graham Bell', uid='lex', email="123@123.com", password='123lex')
-                u4 = cls(name='Eli Whitney', uid='whit', email="123@123.com", password='123whit')
-                u5 = cls(name='Indiana Jones', uid='indi', email="123@123.com", dob=datetime(1920, 10, 21))
-                u6 = cls(name='Marion Ravenwood', uid='raven', email="123@123.com", dob=datetime(1921, 10, 21))
+                u1 = cls(name='Thomas Edison', uid='toby', email="123@123.com", password='123toby', dob=datetime(1847, 2, 11), role='Admin')
+                u2 = cls(name='Nikola Tesla', uid='niko', email="123@123.com", password='123niko', role='User')
+                u3 = cls(name='Alexander Graham Bell', uid='lex', email="123@123.com", password='123lex', role='User')
+                u4 = cls(name='Eli Whitney', uid='whit', email="123@123.com", password='123whit', role='User')
+                u5 = cls(name='Indiana Jones', uid='indi', email="123@123.com", dob=datetime(1920, 10, 21), role='User')
+                u6 = cls(name='Marion Ravenwood', uid='raven', email="123@123.com", dob=datetime(1921, 10, 21), role='User')
 
                 users = [u1, u2, u3, u4, u5, u6]
 
@@ -92,9 +92,21 @@ class User(db.Model):
     def uid(self, uid):
         self._uid = uid
         
+    # a setter property for role
+    @property
+    def role(self):
+        return self._role
+    
+    @role.setter
+    def role(self, role):
+        self._role = role
+        
     # check if uid parameter matches user id in object, return boolean
     def is_uid(self, uid):
         return self._uid == uid
+    
+    def is_admin(self):
+        return self._role == "Admin"
     
     @property
     def password(self):
@@ -175,6 +187,7 @@ class User(db.Model):
             "dob": self.dob,
             "age": self.age,
             "email": self.email,
+            "role": self.role,
             "colleges": self.college_list
         }
 
