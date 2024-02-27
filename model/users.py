@@ -115,7 +115,7 @@ class User(db.Model):
     # update password, this is conventional method used for setter
     def set_password(self, password):
         """Create a hashed password."""
-        self._password = generate_password_hash(password, method='sha256')
+        self._password = generate_password_hash(password, method="pbkdf2:sha256")
 
     # check password parameter against stored/encrypted password
     def is_password(self, password):
