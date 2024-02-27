@@ -1,6 +1,4 @@
 import jwt
-import logging
-
 from model.users import User
 from model.colleges import College
 from flask import Blueprint, request, jsonify, current_app, Response
@@ -50,41 +48,41 @@ class UserAPI:
             return {'message': f'Processed {name}, either a format error or User ID {uid} is duplicate'}, 400
 
         @token_required
-        def get(self, current_user): # Read method
+        def get(self, current_user):  # Read method
             users = User.query.all()  # read/extract all users from database
-            json_ready = [user.read() for user in users] # prepare output in json
-            return jsonify(json_ready) # jsonify creates Flask response object, more specific to APIs than json.dumps
-        
-        @token_required(roles=["Admin","User"])
+            json_ready = [user.read() for user in users]  # prepare output in json
+            return jsonify(json_ready)  # jsonify creates Flask response object, more specific to APIs than json.dumps
+
+        @token_required
         def delete(self, current_user):
             body = request.get_json()
             uid = body.get('uid')
             users = User.query.all()
-            
+
             for user in users:
                 if user.uid == uid:
                     user.delete()
             return jsonify(user.read())
-    
-    class _Edit(Resource):    
-        #READ STR college_list AS LIST THEN REPORT SELECTIONS AS JSON
+
+    class _Edit(Resource):
+        # READ STR college_list AS LIST THEN REPORT SELECTIONS AS JSON
         def post(self):
             body = request.get_json()
             colleges = College.query.all()
-            list = literal_eval(body.get('college_list'))
             user_colleges = []
+            list = literal_eval(body.get('college_list'))
             for college in colleges:
                 if college.name() in list:
                     user_colleges.append(college.read())
             return jsonify(user_colleges)
-        
-        #REPORT WHOLE COLLEGES DATASET AS JSON
+
+        # REPORT WHOLE COLLEGES DATASET AS JSON
         def get(self):
             colleges = College.query.all()
             json_ready = [college.read() for college in colleges]
             return jsonify(json_ready)
-        
-        #TAKE STR INPUT AND APPEND TO LIST IF NOT MATCHING
+
+        # TAKE STR INPUT AND APPEND TO LIST IF NOT MATCHING
         def put(self, item):
             body = request.get_json()
             uid = body.get('uid')
@@ -94,7 +92,7 @@ class UserAPI:
                 user.college_list = str(ulist.append(item))
             user.update()
             return jsonify(user.read())
-            
+
     class _Security(Resource):
         def post(self):
             try:
@@ -110,7 +108,7 @@ class UserAPI:
                 if uid is None:
                     return {'message': f'User ID is missing'}, 400
                 password = body.get('password')
-                
+
                 ''' Find user '''
                 user = User.query.filter_by(_uid=uid).first()
                 if user is None or not user.is_password(password):
@@ -118,8 +116,7 @@ class UserAPI:
                 if user:
                     try:
                         token_payload = {
-                            "_uid":user._uid,
-                            "role": user.role
+                            "_uid": user._uid,
                         }
                         token = jwt.encode(
                             token_payload,
@@ -128,14 +125,14 @@ class UserAPI:
                         )
                         resp = Response("Authentication for %s successful" % (user._uid))
                         resp.set_cookie("jwt", token,
-                                max_age=3600,
-                                secure=True,
-                                httponly=True,
-                                path='/',
-                                samesite='None'  # This is the key part for cross-site requests
+                                        max_age=3600,
+                                        secure=True,
+                                        httponly=True,
+                                        path='/',
+                                        samesite='None'  # This is the key part for cross-site requests
 
-                                # domain="frontend.com"
-                                )
+                                        # domain="frontend.com"
+                                        )
                         return resp
                     except Exception as e:
                         return {
@@ -149,9 +146,9 @@ class UserAPI:
                 }, 404
             except Exception as e:
                 return {
-                        "message": "Something went wrong!",
-                        "error": str(e),
-                        "data": None
+                    "message": "Something went wrong!",
+                    "error": str(e),
+                    "data": None
                 }, 500
 
     api.add_resource(_CRUD, '/')
