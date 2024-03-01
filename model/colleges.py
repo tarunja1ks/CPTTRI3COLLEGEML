@@ -103,7 +103,7 @@ class College(db.Model):
 def initPlayers():
     with app.app_context():
         db.create_all()
-        c1 = College(name='Stanford University',link='https://admission.stanford.edu/apply/',img='https://identity.stanford.edu/wp-content/uploads/sites/3/2020/07/block-s-right.png', )
+        c1 = College(name='Stanford University',link='https://admission.stanford.edu/apply/',img='https://identity.stanford.edu/wp-content/uploads/sites/3/2020/07/block-s-right.png')
         c2 = College(name='Harvard University',link='https://college.harvard.edu/admissions/apply',img='https://1000logos.net/wp-content/uploads/2017/02/Harvard-Logo.png')
         c3 = College(name='MIT',link='https://apply.mitadmissions.org/portal/apply',img='https://upload.wikimedia.org/wikipedia/commons/thumb/0/0c/MIT_logo.svg/2560px-MIT_logo.svg.png')
         c4 = College(name='Georgia Tech',link='https://admission.gatech.edu/apply/',img='https://brand.gatech.edu/sites/default/files/inline-images/GTVertical_RGB.png')
