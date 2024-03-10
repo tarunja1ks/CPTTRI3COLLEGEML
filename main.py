@@ -18,7 +18,7 @@ app.register_blueprint(user_api)
 @app.before_request
 def before_request():
     allowed_origin = request.headers.get('Origin')
-    if allowed_origin in ['http://localhost:4200', 'http://127.0.0.1:4200', 'https://nighthawkcoders.github.io']:
+    if allowed_origin in ['localhost:4100', 'http://localhost:4100', 'http://127.0.0.1:4100', 'https://nighthawkcoders.github.io']:
         cors._origins = allowed_origin
         
         
