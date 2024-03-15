@@ -97,9 +97,9 @@ class UserAPI:
             body = request.get_json()
             gpa=body.get('gpa')
             SAT=body.get('SAT')
-            extraciricular=body.get('extraciricular')
+            Extracurricular_Activities=body.get('Extracurricular_Activities')
             Model=datamodel()
-            return jsonify(Model.predict(gpa, SAT, extraciricular))
+            return jsonify(Model.predict(gpa, SAT, Extracurricular_Activities))
         
     class _Security(Resource):
         def post(self):
