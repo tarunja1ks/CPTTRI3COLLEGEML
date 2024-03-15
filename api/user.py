@@ -100,6 +100,7 @@ class UserAPI:
             extraciricular=body.get('extraciricular')
             Model=datamodel()
             return jsonify(Model.predict(gpa, SAT, extraciricular))
+        
     class _Security(Resource):
         def post(self):
             try:
