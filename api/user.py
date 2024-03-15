@@ -6,7 +6,7 @@ from flask_restful import Api, Resource
 from datetime import datetime
 from auth_middleware import token_required
 from ast import literal_eval
-
+from datamodel import datamodel
 user_api = Blueprint('user_api', __name__, url_prefix='/api/users')
 api = Api(user_api)
 
@@ -92,7 +92,14 @@ class UserAPI:
                 user.college_list = str(ulist.append(item))
             user.update()
             return jsonify(user.read())
-
+    class Prediction(Resource):
+        def get():
+            body = request.get_json()
+            gpa=body.get('gpa')
+            SAT=body.get('SAT')
+            extraciricular=body.get('extraciricular')
+            Model=datamodel()
+            return jsonify(Model.predict(gpa, SAT, extraciricular))
     class _Security(Resource):
         def post(self):
             try:
@@ -154,3 +161,4 @@ class UserAPI:
     api.add_resource(_CRUD, '/')
     api.add_resource(_Security, '/authenticate')
     api.add_resource(_Edit, '/edit')
+    api.add_resource(Prediction, '/Prediction')
