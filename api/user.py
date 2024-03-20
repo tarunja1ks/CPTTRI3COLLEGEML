@@ -93,14 +93,25 @@ class UserAPI:
             user.update()
             return jsonify(user.read())
     class Prediction(Resource):
-        def get():
-            body = request.get_json()
-            gpa=body.get('gpa')
-            SAT=body.get('SAT')
-            Extracurricular_Activities=body.get('Extracurricular_Activities')
-            Model=datamodel()
-            return jsonify(Model.predict(gpa, SAT, Extracurricular_Activities))
-        
+        def post(self):
+            try:
+                body = request.get_json()
+                # Convert input data to numeric format
+                gpa = float(body.get('gpa'))
+                SAT = int(body.get('SAT'))
+                Extracurricular_Activities = int(body.get('Extracurricular_Activities'))
+                Model = datamodel()
+                prediction_result = Model.predict(gpa, SAT, Extracurricular_Activities)
+                return jsonify(prediction_result)
+            except Exception as e:
+                print("Prediction error:", str(e))  # Log the error
+                return {
+                    "message": "Something went wrong during prediction!",
+                    "error": str(e),
+                    "data": None
+                }, 500
+
+            
     class _Security(Resource):
         def post(self):
             try:
