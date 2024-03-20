@@ -20,7 +20,17 @@ class datamodel:
     def exportmodel(self):
         joblib.dump(self.model,"College_prediction.pkl")
     
+    def create(self, new_data):
+        self.data = self.data.append(new_data, ignore_index=True)
+        
+    def read(self):
+        return self.data
     
+    def update(self, index, updated_data):
+        self.data.loc[index] = updated_data
+        
+    def delete(self, index):
+        self.data.drop(index, inplace=True)
     
     
 Model=datamodel()
