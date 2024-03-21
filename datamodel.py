@@ -3,21 +3,21 @@ from sklearn.linear_model import LogisticRegression
 import joblib
 class datamodel:
     
-    def __init__(self):
+    def __init__(self): # Loading in the model file(this includes all weights after training)
         self.model = joblib.load("College_prediction.pkl")
     def readfile(self):
         self.data=pd.read_csv("student_admission_dataset.csv")
         print(self.data.head())
-    def preprocessing(self):
+    def preprocessing(self):# this is loading in the file stuff into X and Y
         self.X=self.data[['GPA','SAT_Score','Extracurricular_Activities']]
         self.Y=self.data['Admission_Status']
-    def train(self):
+    def train(self): # this is actually trianing the model
         self.model=LogisticRegression()
         self.model.fit(self.X,self.Y)
-    def predict(self, GPA, SAT_SCORE, EXTRACIRICULAR):
+    def predict(self, GPA, SAT_SCORE, EXTRACIRICULAR): # this is prediciton function
         return self.model.predict([[GPA, SAT_SCORE, EXTRACIRICULAR]])[0]
     
-    def exportmodel(self):
+    def exportmodel(self): #after trianing we have to export the file again
         joblib.dump(self.model,"College_prediction.pkl")
     
     def create(self, new_data):
@@ -33,5 +33,6 @@ class datamodel:
         self.data.drop(index, inplace=True)
     
     
-Model=datamodel()
-print(Model.predict(4.0,1600,8))
+Model=datamodel()# sample class thing
+Model.exportmodel()
+print(Model.predict(4.0,1600,8))# sample Prediction
