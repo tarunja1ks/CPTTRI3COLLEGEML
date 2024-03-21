@@ -20,6 +20,9 @@ class datamodel:
     def exportmodel(self):
         joblib.dump(self.model,"College_prediction.pkl")
     
+
+    ## this stuff is just crud 
+        
     def create(self, new_data):
         self.data = self.data.append(new_data, ignore_index=True)
         
