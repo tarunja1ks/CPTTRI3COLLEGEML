@@ -27,6 +27,6 @@ class datamodel:
         self.data.drop(index, inplace=True)
     
     
-Model=datamodel()# sample class thing
-Model.exportmodel()
-print(Model.predict(4.0,1600,8))# sample Prediction
+# Model=datamodel()# sample class thing
+# Model.exportmodel()
+# print(Model.predict(4.0,1600,8))# sample Prediction
