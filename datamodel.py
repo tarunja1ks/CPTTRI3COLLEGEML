@@ -9,8 +9,6 @@ class datamodel:
         self.model=LogisticRegression()
         self.model.fit(self.X,self.Y)
         
-    def exportmodel(self): # after training the model, we have to export to permanently save weights to .pkl file / one and done
-        joblib.dump(self.model,"College_prediction.pkl")
         
     def predict(self, GPA, SAT_SCORE, EXTRACIRICULAR): # this is prediciton function
         return self.model.predict([[GPA, SAT_SCORE, EXTRACIRICULAR]])[0]
