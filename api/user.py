@@ -101,6 +101,7 @@ class UserAPI:
                 SAT = int(body.get('SAT'))
                 Extracurricular_Activities = int(body.get('Extracurricular_Activities'))
                 Model = datamodel()
+                Model.training()
                 prediction_result = Model.predict(gpa, SAT, Extracurricular_Activities)
                 return jsonify(prediction_result)
             except Exception as e:
